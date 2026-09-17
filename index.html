@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Painel Biblioteca 2026</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #fcfcfb;
+    --surface-2: #f9f9f7;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --gridline: #e1e0d9;
+    --baseline: #c3c2b7;
+    --border: rgba(11,11,11,0.10);
+    --good: #0ca30c;
+
+    --team-a-450: #2a78d6;
+    --team-a-250: #9ec5f4;
+    --team-a-150: #b7d3f6;
+    --team-b: #eb6834;
+    --team-b-track: #f7c7ab;
+    --team-b-tint: #fbe3d3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-1: #1a1a19;
+      --surface-2: #0d0d0d;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted: #898781;
+      --gridline: #2c2c2a;
+      --baseline: #383835;
+      --border: rgba(255,255,255,0.10);
+      --good: #0ca30c;
+
+      --team-a-450: #3987e5;
+      --team-a-250: #184f95;
+      --team-a-150: #10203a;
+      --team-b: #d95926;
+      --team-b-track: #5a3524;
+      --team-b-tint: #3a2419;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --surface-2: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255,255,255,0.10);
+    --good: #0ca30c;
+
+    --team-a-450: #3987e5;
+    --team-a-250: #184f95;
+    --team-a-150: #10203a;
+    --team-b: #d95926;
+    --team-b-track: #5a3524;
+    --team-b-tint: #3a2419;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--surface-2);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 28px 16px 48px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); margin: 0 0 6px;
+  }
+  h1 { font-size: clamp(26px, 5vw, 34px); margin: 0 0 6px; letter-spacing: -0.01em; text-wrap: balance; }
+  .subtitle { color: var(--text-secondary); font-size: 15px; margin: 0; }
+
+  .hero-row {
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch;
+  }
+  .hero-card, .stat-tile {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .hero-card {
+    flex: 1 1 220px; display: flex; flex-direction: column; justify-content: center; gap: 4px;
+  }
+  .hero-value { font-size: 48px; font-weight: 650; line-height: 1; letter-spacing: -0.02em; }
+  .hero-label { color: var(--text-secondary); font-size: 14px; }
+  .hero-sub { color: var(--text-muted); font-size: 13px; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; flex: 2 1 420px; }
+  .stat-tile { display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+  .stat-value { font-size: 26px; font-weight: 650; letter-spacing: -0.01em; }
+  .stat-label { color: var(--text-secondary); font-size: 13px; }
+
+  .timeline {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+  }
+  .timeline h2, .section h2 { font-size: 15px; margin: 0 0 14px; font-weight: 650; }
+  .timeline-track { display: flex; border-radius: 8px; overflow: hidden; height: 40px; position: relative; }
+  .timeline-seg {
+    flex: 1 1 0; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--text-primary);
+    border-right: 2px solid var(--surface-1);
+  }
+  .timeline-seg:last-child { border-right: none; }
+  .timeline-seg.buffer { background: var(--gridline); color: var(--text-muted); font-weight: 500; }
+  .timeline-labels { display: flex; margin-top: 6px; }
+  .timeline-labels span { flex: 1 1 0; font-size: 11px; color: var(--text-muted); text-align: center; }
+  .today-marker {
+    position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--text-primary);
+  }
+  .today-marker::after {
+    content: "hoje"; position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+    font-size: 10px; font-weight: 700; color: var(--text-primary); white-space: nowrap;
+  }
+
+  .section {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+  }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .legend { display: flex; gap: 16px; font-size: 13px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .swatch.a { background: var(--team-a-450); }
+  .swatch.b { background: var(--team-b); }
+
+  .toggle-btn {
+    font: inherit; font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 12px; cursor: pointer;
+  }
+  .toggle-btn:hover { color: var(--text-primary); }
+  .toggle-btn:focus-visible { outline: 2px solid var(--team-a-450); outline-offset: 2px; }
+
+  .milestone { padding: 14px 0; border-top: 1px solid var(--gridline); }
+  .milestone:first-of-type { border-top: none; padding-top: 4px; }
+  .milestone-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .milestone-name { font-weight: 650; font-size: 14px; }
+  .milestone-dates { font-size: 12px; color: var(--text-muted); }
+
+  .meter-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+  .meter-team { width: 62px; flex: 0 0 auto; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+  .meter-track { flex: 1 1 auto; height: 16px; border-radius: 8px; position: relative; overflow: hidden; cursor: default; }
+  .meter-track.a { background: var(--team-a-150); }
+  .meter-track.b { background: var(--team-b-track); }
+  .meter-fill { position: absolute; inset: 0 auto 0 0; border-radius: 8px; min-width: 4px; }
+  .meter-fill.a { background: var(--team-a-450); }
+  .meter-fill.b { background: var(--team-b); }
+  .meter-value { flex: 0 0 auto; width: 118px; font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; text-align: right; }
+
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.data-table th, table.data-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--gridline); }
+  table.data-table th { color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  table.data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  [hidden] { display: none !important; }
+
+  .footer { color: var(--text-muted); font-size: 12px; line-height: 1.6; text-align: center; padding-top: 8px; }
+  .footer code { background: var(--surface-1); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+  .footer a { color: var(--text-secondary); }
+
+  @media (max-width: 640px) {
+    .meter-value { width: 92px; }
+    .meter-team { width: 50px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Biblioteca 2026 · Scrum</p>
+    <h1>Painel de progresso — Turmas A e B</h1>
+    <p class="subtitle" id="snapshot-line">Snapshot gerado em —</p>
+  </header>
+
+  <div class="hero-row">
+    <div class="hero-card">
+      <div class="hero-value" id="hero-days">—</div>
+      <div class="hero-label">dias até a apresentação final</div>
+      <div class="hero-sub">15 de novembro de 2026</div>
+    </div>
+    <div class="stat-grid" id="stat-grid"></div>
+  </div>
+
+  <div class="timeline">
+    <h2>Calendário das sprints</h2>
+    <div class="timeline-track" id="timeline-track"></div>
+    <div class="timeline-labels" id="timeline-labels"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2 style="margin:0;">Progresso por sprint (story points)</h2>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <div class="legend">
+          <span><i class="swatch a"></i>Turma A</span>
+          <span><i class="swatch b"></i>Turma B</span>
+        </div>
+        <button class="toggle-btn" id="toggle-table" aria-pressed="false">Ver como tabela</button>
+      </div>
+    </div>
+    <div id="meters-view"></div>
+    <div id="table-view" hidden></div>
+  </div>
+
+  <p class="footer">
+    Gerado a partir da API pública do GitHub (issues, milestones e a label
+    <code>esforço: N</code> como story points) em
+    <a href="https://github.com/ensismoebius/biblioteca_2Mtec_2026_A">biblioteca_2Mtec_2026_A</a> e
+    <a href="https://github.com/ensismoebius/biblioteca_2Mtec_2026_B">biblioteca_2Mtec_2026_B</a>.
+    Atualizado automaticamente por uma GitHub Action semanal
+    (<a href="https://github.com/ensismoebius/biblioteca_2Mtec_2026_dashboard/actions/workflows/refresh.yml">ver execuções</a>).
+  </p>
+</div>
+
+<script>
+const DATA = {
+  "generated_at": "2026-09-17T15:24:50.632833+00:00",
+  "A": {
+    "repo": "ensismoebius/biblioteca_2Mtec_2026_A",
+    "total_issues": 88,
+    "total_done": 0,
+    "total_pts": 318,
+    "done_pts": 0,
+    "sprints": {
+      "Sprint 1 — Fundação e Banco de Dados": { "issues_total": 28, "issues_done": 0, "pontos_total": 71, "pontos_done": 0 },
+      "Sprint 2 — CRUD do Acervo": { "issues_total": 24, "issues_done": 0, "pontos_total": 87, "pontos_done": 0 },
+      "Sprint 3 — Pessoas, Autenticação e Empréstimos": { "issues_total": 16, "issues_done": 0, "pontos_total": 65, "pontos_done": 0 },
+      "Sprint 4 — Relatórios, Qualidade e Entrega": { "issues_total": 13, "issues_done": 0, "pontos_total": 56, "pontos_done": 0 },
+      "Backlog do Produto": { "issues_total": 7, "issues_done": 0, "pontos_total": 39, "pontos_done": 0 }
+    },
+    "ms_order": {
+      "Sprint 1 — Fundação e Banco de Dados": 1,
+      "Sprint 2 — CRUD do Acervo": 2,
+      "Sprint 3 — Pessoas, Autenticação e Empréstimos": 3,
+      "Sprint 4 — Relatórios, Qualidade e Entrega": 4,
+      "Backlog do Produto": 5
+    },
+    "assignees": {}
+  },
+  "B": {
+    "repo": "ensismoebius/biblioteca_2Mtec_2026_B",
+    "total_issues": 88,
+    "total_done": 0,
+    "total_pts": 318,
+    "done_pts": 0,
+    "sprints": {
+      "Sprint 1 — Fundação e Banco de Dados": { "issues_total": 28, "issues_done": 0, "pontos_total": 71, "pontos_done": 0 },
+      "Sprint 2 — CRUD do Acervo": { "issues_total": 24, "issues_done": 0, "pontos_total": 87, "pontos_done": 0 },
+      "Sprint 3 — Pessoas, Autenticação e Empréstimos": { "issues_total": 16, "issues_done": 0, "pontos_total": 65, "pontos_done": 0 },
+      "Sprint 4 — Relatórios, Qualidade e Entrega": { "issues_total": 13, "issues_done": 0, "pontos_total": 56, "pontos_done": 0 },
+      "Backlog do Produto": { "issues_total": 7, "issues_done": 0, "pontos_total": 39, "pontos_done": 0 }
+    },
+    "ms_order": {
+      "Sprint 1 — Fundação e Banco de Dados": 1,
+      "Sprint 2 — CRUD do Acervo": 2,
+      "Sprint 3 — Pessoas, Autenticação e Empréstimos": 3,
+      "Sprint 4 — Relatórios, Qualidade e Entrega": 4,
+      "Backlog do Produto": 5
+    },
+    "assignees": {}
+  }
+};
+
+const SPRINT_DATES = {
+  "Sprint 1 — Fundação e Banco de Dados": ["2026-09-18", "2026-10-01"],
+  "Sprint 2 — CRUD do Acervo": ["2026-10-02", "2026-10-15"],
+  "Sprint 3 — Pessoas, Autenticação e Empréstimos": ["2026-10-16", "2026-10-29"],
+  "Sprint 4 — Relatórios, Qualidade e Entrega": ["2026-10-30", "2026-11-12"],
+  "Backlog do Produto": null,
+};
+const SPRINT_SHORT = {
+  "Sprint 1 — Fundação e Banco de Dados": "Sprint 1",
+  "Sprint 2 — CRUD do Acervo": "Sprint 2",
+  "Sprint 3 — Pessoas, Autenticação e Empréstimos": "Sprint 3",
+  "Sprint 4 — Relatórios, Qualidade e Entrega": "Sprint 4",
+  "Backlog do Produto": "Backlog",
+};
+const ORDER = [
+  "Sprint 1 — Fundação e Banco de Dados",
+  "Sprint 2 — CRUD do Acervo",
+  "Sprint 3 — Pessoas, Autenticação e Empréstimos",
+  "Sprint 4 — Relatórios, Qualidade e Entrega",
+  "Backlog do Produto",
+];
+
+const TODAY = new Date();
+const DEADLINE = new Date("2026-11-15T12:00:00");
+const fmtDate = (iso) => {
+  const d = new Date(iso + "T12:00:00");
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+};
+
+function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+
+// --- header ---
+const geradoEm = DATA.generated_at ? new Date(DATA.generated_at) : TODAY;
+document.getElementById("snapshot-line").textContent =
+  "Dados coletados em " + geradoEm.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) +
+  " · Turma A: " + DATA.A.repo.split("/")[1] + " · Turma B: " + DATA.B.repo.split("/")[1];
+
+document.getElementById("hero-days").textContent = daysBetween(TODAY, DEADLINE);
+
+// --- stat tiles ---
+const totalIssues = DATA.A.total_issues + DATA.B.total_issues;
+const totalPts = DATA.A.total_pts + DATA.B.total_pts;
+const doneIssues = DATA.A.total_done + DATA.B.total_done;
+const stats = [
+  { value: totalIssues, label: "Issues no backlog (A+B)" },
+  { value: totalPts, label: "Story points planejados (A+B)" },
+  { value: doneIssues + " / " + totalIssues, label: "Issues concluídas (A+B)" },
+  { value: "3", label: "Aprovações exigidas por PR" },
+];
+document.getElementById("stat-grid").innerHTML = stats.map(s =>
+  `<div class="stat-tile"><div class="stat-value">${s.value}</div><div class="stat-label">${s.label}</div></div>`
+).join("");
+
+// --- timeline ---
+const trackEl = document.getElementById("timeline-track");
+const labelsEl = document.getElementById("timeline-labels");
+let todayMarkerHTML = "";
+let cumPct = 0;
+ORDER.forEach((name) => {
+  const dates = SPRINT_DATES[name];
+  const isBuffer = name === "Backlog do Produto";
+  const seg = document.createElement("div");
+  seg.className = "timeline-seg" + (isBuffer ? " buffer" : "");
+  seg.textContent = SPRINT_SHORT[name];
+  seg.style.flexBasis = isBuffer ? "10%" : "22.5%";
+  trackEl.appendChild(seg);
+
+  const lab = document.createElement("span");
+  lab.textContent = dates ? fmtDate(dates[0]) + "–" + fmtDate(dates[1]) : "sem prazo";
+  labelsEl.appendChild(lab);
+
+  if (dates) {
+    const [s, e] = dates.map(d => new Date(d + "T12:00:00"));
+    if (TODAY >= s && TODAY <= e) {
+      const segPct = 22.5;
+      const within = daysBetween(s, TODAY) / daysBetween(s, e);
+      const left = cumPct + within * segPct;
+      todayMarkerHTML = `<div class="today-marker" style="left:${left}%"></div>`;
+    } else if (TODAY < s && todayMarkerHTML === "" && name === "Sprint 1 — Fundação e Banco de Dados") {
+      todayMarkerHTML = `<div class="today-marker" style="left:0%"></div>`;
+    }
+    cumPct += 22.5;
+  }
+});
+trackEl.insertAdjacentHTML("beforeend", todayMarkerHTML);
+
+// --- meters ---
+function meterRow(team, cls, done, total, label) {
+  const pct = total ? Math.max((done / total) * 100, done > 0 ? 2 : 0) : 0;
+  return `
+    <div class="meter-row">
+      <div class="meter-team">${team}</div>
+      <div class="meter-track ${cls}" title="${label}">
+        <div class="meter-fill ${cls}" style="width:${pct}%"></div>
+      </div>
+      <div class="meter-value">${done} / ${total} pts</div>
+    </div>`;
+}
+
+const metersEl = document.getElementById("meters-view");
+metersEl.innerHTML = ORDER.map((name) => {
+  const a = DATA.A.sprints[name] || { issues_total: 0, issues_done: 0, pontos_total: 0, pontos_done: 0 };
+  const b = DATA.B.sprints[name] || { issues_total: 0, issues_done: 0, pontos_total: 0, pontos_done: 0 };
+  const dates = SPRINT_DATES[name];
+  const dateStr = dates ? fmtDate(dates[0]) + " – " + fmtDate(dates[1]) : "sem prazo definido";
+  return `
+    <div class="milestone">
+      <div class="milestone-head">
+        <div class="milestone-name">${name}</div>
+        <div class="milestone-dates">${dateStr}</div>
+      </div>
+      ${meterRow("Turma A", "a", a.pontos_done, a.pontos_total, `Turma A — ${a.issues_done}/${a.issues_total} issues, ${a.pontos_done}/${a.pontos_total} pts`)}
+      ${meterRow("Turma B", "b", b.pontos_done, b.pontos_total, `Turma B — ${b.issues_done}/${b.issues_total} issues, ${b.pontos_done}/${b.pontos_total} pts`)}
+    </div>`;
+}).join("");
+
+// --- table view ---
+const tableEl = document.getElementById("table-view");
+let rows = "";
+ORDER.forEach((name) => {
+  ["A", "B"].forEach((turma) => {
+    const s = DATA[turma].sprints[name] || { issues_total: 0, issues_done: 0, pontos_total: 0, pontos_done: 0 };
+    rows += `<tr><td>${name}</td><td>Turma ${turma}</td>
+      <td class="num">${s.issues_done} / ${s.issues_total}</td>
+      <td class="num">${s.pontos_done} / ${s.pontos_total}</td></tr>`;
+  });
+});
+tableEl.innerHTML = `
+  <table class="data-table">
+    <thead><tr><th>Sprint</th><th>Turma</th><th>Issues (feito/total)</th><th>Pontos (feito/total)</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+
+const toggleBtn = document.getElementById("toggle-table");
+toggleBtn.addEventListener("click", () => {
+  const showingTable = !tableEl.hidden;
+  tableEl.hidden = showingTable;
+  metersEl.hidden = !showingTable;
+  toggleBtn.textContent = showingTable ? "Ver como tabela" : "Ver como gráfico";
+  toggleBtn.setAttribute("aria-pressed", String(!showingTable));
+});
+</script>
+
+</body>
+</html>

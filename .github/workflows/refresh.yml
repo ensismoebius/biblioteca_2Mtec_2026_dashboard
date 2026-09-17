@@ -1,0 +1,33 @@
+name: Atualizar painel
+
+on:
+  schedule:
+    # 23:00 UTC todo domingo = 20:00 America/Sao_Paulo
+    - cron: "0 23 * * 0"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Coletar dados e atualizar index.html
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/collect_and_update.py
+
+      - name: Commit se houver mudança
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "Sem mudanças, nada para commitar."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "chore: atualizar snapshot do painel"
+          git push
